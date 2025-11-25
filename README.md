@@ -102,8 +102,8 @@ POST /api/register
 Content-Type: application/json
 
 {
-  "name": "Paulo Developer",
-  "email": "paulo@example.com",
+  "name": "test Developer",
+  "email": "test@example.com",
   "password": "password123",
   "password_confirmation": "password123"
 }
@@ -115,8 +115,8 @@ Content-Type: application/json
   "message": "User registered successfully",
   "user": {
     "id": 1,
-    "name": "Paulo Developer",
-    "email": "paulo@example.com",
+    "name": "test Developer",
+    "email": "test@example.com",
     "created_at": "2025-11-25T12:00:00.000000Z"
   },
   "token": "1|abcd1234..."
@@ -130,7 +130,7 @@ POST /api/login
 Content-Type: application/json
 
 {
-  "email": "paulo@example.com",
+  "email": "test@example.com",
   "password": "password123"
 }
 ```
@@ -141,8 +141,8 @@ Content-Type: application/json
   "message": "Login successful",
   "user": {
     "id": 1,
-    "name": "Paulo Developer",
-    "email": "paulo@example.com",
+    "name": "test Developer",
+    "email": "test@example.com",
     "created_at": "2025-11-25T12:00:00.000000Z"
   },
   "token": "2|xyz9876..."
@@ -236,7 +236,7 @@ Authorization: Bearer {tu-token}
 
 Los seeders crean un usuario de ejemplo:
 
-- **Email:** `paulo@example.com`
+- **Email:** `test@example.com`
 - **Password:** `password123`
 
 Y 3 tareas de ejemplo asociadas.
