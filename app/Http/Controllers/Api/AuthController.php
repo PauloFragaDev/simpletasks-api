@@ -34,7 +34,7 @@ class AuthController extends Controller
         $result = $this->loginUser->handle(
             $request->email,
             $request->password,
-            $request->header('User-Agent', 'unknown')
+            $request->device_name
         );
 
         return response()->json([

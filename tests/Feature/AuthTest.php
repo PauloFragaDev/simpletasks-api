@@ -86,6 +86,20 @@ class AuthTest extends TestCase
 
     // ── Login ─────────────────────────────────────────────────────────────
 
+    public function test_login_requires_device_name(): void
+    {
+        $user = User::factory()->create(['password' => bcrypt('password123')]);
+
+        $response = $this->postJson('/api/login', [
+            'email' => $user->email,
+            'password' => 'password123',
+            // device_name intentionally missing
+        ]);
+
+        $response->assertStatus(422)
+            ->assertJsonValidationErrors('device_name');
+    }
+
     public function test_user_can_login_with_correct_credentials(): void
     {
         $user = User::factory()->create(['password' => bcrypt('password123')]);
@@ -93,6 +107,7 @@ class AuthTest extends TestCase
         $response = $this->postJson('/api/login', [
             'email' => $user->email,
             'password' => 'password123',
+            'device_name' => 'My Device',
         ]);
 
         $response->assertOk()
@@ -110,6 +125,7 @@ class AuthTest extends TestCase
         $response = $this->postJson('/api/login', [
             'email' => $user->email,
             'password' => 'wrong',
+            'device_name' => 'My Device',
         ]);
 
         $response->assertStatus(422)
@@ -121,6 +137,7 @@ class AuthTest extends TestCase
         $response = $this->postJson('/api/login', [
             'email' => 'nobody@example.com',
             'password' => 'password123',
+            'device_name' => 'My Device',
         ]);
 
         $response->assertStatus(422)
