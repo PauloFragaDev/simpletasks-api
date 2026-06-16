@@ -13,10 +13,9 @@ class UpdateTaskAction
     {
         $becomingDone = isset($data['status'])
             && $task->status !== TaskStatus::Done
-            && ($data['status'] === 'done' || $data['status'] === TaskStatus::Done);
+            && $data['status'] === TaskStatus::Done->value;
 
         $task->update($data);
-        $task->refresh();
 
         TaskUpdated::dispatch($task);
 
