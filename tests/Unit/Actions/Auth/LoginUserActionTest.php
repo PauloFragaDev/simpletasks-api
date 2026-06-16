@@ -1,6 +1,7 @@
 <?php
 namespace Tests\Unit\Actions\Auth;
 
+use App\Actions\Auth\LoginResult;
 use App\Actions\Auth\LoginUserAction;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -16,10 +17,12 @@ class LoginUserActionTest extends TestCase
         $user   = User::factory()->create(['password' => bcrypt('secret123')]);
         $action = new LoginUserAction();
 
-        $token = $action->handle($user->email, 'secret123', 'Test Device');
+        $result = $action->handle($user->email, 'secret123', 'Test Device');
 
-        $this->assertIsString($token);
-        $this->assertNotEmpty($token);
+        $this->assertInstanceOf(LoginResult::class, $result);
+        $this->assertSame($user->id, $result->user->id);
+        $this->assertIsString($result->token);
+        $this->assertNotEmpty($result->token);
     }
 
     public function test_throws_validation_exception_for_wrong_password(): void

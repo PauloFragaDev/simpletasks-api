@@ -7,7 +7,6 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Http\Requests\Auth\RegisterRequest;
 use App\Http\Resources\UserResource;
-use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -32,18 +31,16 @@ class AuthController extends Controller
 
     public function login(LoginRequest $request): JsonResponse
     {
-        $token = $this->loginUser->handle(
+        $result = $this->loginUser->handle(
             $request->email,
             $request->password,
             $request->header('User-Agent', 'unknown')
         );
 
-        $user = User::where('email', $request->email)->first();
-
         return response()->json([
             'message' => 'Login successful',
-            'user'    => new UserResource($user),
-            'token'   => $token,
+            'user'    => new UserResource($result->user),
+            'token'   => $result->token,
         ]);
     }
 

@@ -7,7 +7,7 @@ use Illuminate\Validation\ValidationException;
 
 class LoginUserAction
 {
-    public function handle(string $email, string $password, string $deviceName): string
+    public function handle(string $email, string $password, string $deviceName): LoginResult
     {
         $user = User::where('email', $email)->first();
 
@@ -17,6 +17,8 @@ class LoginUserAction
             ]);
         }
 
-        return $user->createToken($deviceName)->plainTextToken;
+        $token = $user->createToken($deviceName)->plainTextToken;
+
+        return new LoginResult(user: $user, token: $token);
     }
 }
