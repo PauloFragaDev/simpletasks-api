@@ -26,7 +26,7 @@ Route::middleware('auth:sanctum')->group(function () {
         ->middleware('signed')
         ->name('verification.verify');
     Route::post('/auth/email/resend', [EmailVerificationController::class, 'resend'])
-        ->middleware('throttle:1,1');
+        ->middleware('throttle:6,1');
 
     // Task routes
     Route::apiResource('tasks', TaskController::class);
