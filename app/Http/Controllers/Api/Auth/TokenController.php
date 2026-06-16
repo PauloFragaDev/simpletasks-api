@@ -9,6 +9,11 @@ use Laravel\Sanctum\PersonalAccessToken;
 
 class TokenController extends Controller
 {
+    /**
+     * List active tokens.
+     *
+     * @group Token Management
+     */
     public function index(Request $request): JsonResponse
     {
         $tokens = $request->user()->tokens()
@@ -19,6 +24,11 @@ class TokenController extends Controller
         return response()->json(['data' => $tokens]);
     }
 
+    /**
+     * Revoke a token.
+     *
+     * @group Token Management
+     */
     public function destroy(Request $request, int $tokenId): JsonResponse
     {
         $token = PersonalAccessToken::find($tokenId);

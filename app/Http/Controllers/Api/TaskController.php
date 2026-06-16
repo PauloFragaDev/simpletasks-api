@@ -25,6 +25,14 @@ class TaskController extends Controller
         private DeleteTaskAction $deleteTask,
     ) {}
 
+    /**
+     * List tasks.
+     *
+     * Returns a paginated list of the authenticated user's tasks.
+     * Supports filtering by ?filter[status]= and ?filter[priority]=, and sorting with ?sort=.
+     *
+     * @group Tasks
+     */
     public function index(Request $request): AnonymousResourceCollection
     {
         $request->validate([
@@ -43,6 +51,11 @@ class TaskController extends Controller
         return TaskResource::collection($tasks);
     }
 
+    /**
+     * Create a task.
+     *
+     * @group Tasks
+     */
     public function store(StoreTaskRequest $request): JsonResponse
     {
         $task = $this->createTask->handle($request->user(), $request->validated());
@@ -50,12 +63,22 @@ class TaskController extends Controller
         return $this->success(data: new TaskResource($task), message: 'Task created successfully.', status: 201);
     }
 
+    /**
+     * Get a task.
+     *
+     * @group Tasks
+     */
     public function show(Task $task): TaskResource|JsonResponse
     {
         $this->authorize('view', $task);
         return new TaskResource($task);
     }
 
+    /**
+     * Update a task.
+     *
+     * @group Tasks
+     */
     public function update(UpdateTaskRequest $request, Task $task): JsonResponse
     {
         $task = $this->updateTask->handle($task, $request->validated());
@@ -63,6 +86,11 @@ class TaskController extends Controller
         return $this->success(data: new TaskResource($task), message: 'Task updated successfully.');
     }
 
+    /**
+     * Delete a task.
+     *
+     * @group Tasks
+     */
     public function destroy(Task $task): JsonResponse
     {
         $this->authorize('delete', $task);

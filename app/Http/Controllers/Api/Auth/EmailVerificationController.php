@@ -9,6 +9,11 @@ use Illuminate\Http\Request;
 
 class EmailVerificationController extends Controller
 {
+    /**
+     * Verify email address.
+     *
+     * @group Email Verification
+     */
     public function verify(Request $request, int $id, string $hash): JsonResponse
     {
         $user = $request->user();
@@ -31,6 +36,11 @@ class EmailVerificationController extends Controller
         return response()->json(['message' => 'Email verified successfully.']);
     }
 
+    /**
+     * Resend verification email.
+     *
+     * @group Email Verification
+     */
     public function resend(Request $request): JsonResponse
     {
         if ($request->user()->hasVerifiedEmail()) {

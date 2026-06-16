@@ -19,6 +19,12 @@ class AuthController extends Controller
         private LoginUserAction    $loginUser,
     ) {}
 
+    /**
+     * Register a new user.
+     *
+     * @group Authentication
+     * @unauthenticated
+     */
     public function register(RegisterRequest $request): JsonResponse
     {
         $user  = $this->registerUser->handle($request->validated());
@@ -31,6 +37,12 @@ class AuthController extends Controller
         );
     }
 
+    /**
+     * Login.
+     *
+     * @group Authentication
+     * @unauthenticated
+     */
     public function login(LoginRequest $request): JsonResponse
     {
         $result = $this->loginUser->handle(
@@ -45,12 +57,22 @@ class AuthController extends Controller
         );
     }
 
+    /**
+     * Logout (revoke current token).
+     *
+     * @group Authentication
+     */
     public function logout(Request $request): JsonResponse
     {
         $request->user()->currentAccessToken()->delete();
         return $this->success(message: 'Logged out successfully.');
     }
 
+    /**
+     * Get authenticated user profile.
+     *
+     * @group Authentication
+     */
     public function me(Request $request): JsonResponse
     {
         return $this->success(data: new UserResource($request->user()));

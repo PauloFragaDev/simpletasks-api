@@ -9,6 +9,12 @@ use Illuminate\Support\Facades\Password;
 
 class ForgotPasswordController extends Controller
 {
+    /**
+     * Send password reset link.
+     *
+     * @group Password Reset
+     * @unauthenticated
+     */
     public function store(ForgotPasswordRequest $request): JsonResponse
     {
         Password::sendResetLink($request->only('email'));

@@ -12,6 +12,12 @@ use Illuminate\Validation\ValidationException;
 
 class ResetPasswordController extends Controller
 {
+    /**
+     * Reset password.
+     *
+     * @group Password Reset
+     * @unauthenticated
+     */
     public function store(ResetPasswordRequest $request): JsonResponse
     {
         $status = Password::reset(
