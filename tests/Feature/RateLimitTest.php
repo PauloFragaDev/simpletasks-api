@@ -22,13 +22,13 @@ class RateLimitTest extends TestCase
         $user = User::factory()->create();
 
         for ($i = 0; $i < 5; $i++) {
-            $this->postJson('/api/login', [
+            $this->postJson('/api/v1/login', [
                 'email'    => $user->email,
                 'password' => 'wrongpassword',
             ]);
         }
 
-        $response = $this->postJson('/api/login', [
+        $response = $this->postJson('/api/v1/login', [
             'email'    => $user->email,
             'password' => 'wrongpassword',
         ]);
@@ -39,7 +39,7 @@ class RateLimitTest extends TestCase
     public function test_register_is_throttled_after_too_many_attempts(): void
     {
         for ($i = 0; $i < 5; $i++) {
-            $this->postJson('/api/register', [
+            $this->postJson('/api/v1/register', [
                 'name'                  => 'User',
                 'email'                 => "user{$i}@example.com",
                 'password'              => 'password123',
@@ -47,7 +47,7 @@ class RateLimitTest extends TestCase
             ]);
         }
 
-        $response = $this->postJson('/api/register', [
+        $response = $this->postJson('/api/v1/register', [
             'name'                  => 'User',
             'email'                 => 'user99@example.com',
             'password'              => 'password123',

@@ -54,7 +54,7 @@ class EmailVerificationTest extends TestCase
         $user = User::factory()->unverified()->create();
 
         $response = $this->actingAs($user)
-            ->getJson("/api/auth/verify-email/{$user->id}/invalid-hash");
+            ->getJson("/api/v1/auth/verify-email/{$user->id}/invalid-hash");
 
         $response->assertStatus(403);
     }
@@ -81,7 +81,7 @@ class EmailVerificationTest extends TestCase
         Notification::fake();
         $user = User::factory()->unverified()->create();
 
-        $response = $this->actingAs($user)->postJson('/api/auth/email/resend');
+        $response = $this->actingAs($user)->postJson('/api/v1/auth/email/resend');
 
         $response->assertOk()
             ->assertJsonFragment(['message' => 'Verification link sent.']);
@@ -93,7 +93,7 @@ class EmailVerificationTest extends TestCase
     {
         $user = User::factory()->create(); // verified
 
-        $response = $this->actingAs($user)->postJson('/api/auth/email/resend');
+        $response = $this->actingAs($user)->postJson('/api/v1/auth/email/resend');
 
         $response->assertOk()
             ->assertJsonFragment(['message' => 'Email already verified.']);
@@ -101,7 +101,7 @@ class EmailVerificationTest extends TestCase
 
     public function test_unauthenticated_user_cannot_resend_verification(): void
     {
-        $response = $this->postJson('/api/auth/email/resend');
+        $response = $this->postJson('/api/v1/auth/email/resend');
 
         $response->assertStatus(401);
     }
@@ -112,7 +112,7 @@ class EmailVerificationTest extends TestCase
     {
         Notification::fake();
 
-        $this->postJson('/api/register', [
+        $this->postJson('/api/v1/register', [
             'name'                  => 'Jane Doe',
             'email'                 => 'jane@example.com',
             'password'              => 'password123',

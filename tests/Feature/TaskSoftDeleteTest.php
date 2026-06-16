@@ -16,9 +16,9 @@ class TaskSoftDeleteTest extends TestCase
         $user = User::factory()->create();
         $task = Task::factory()->create(['user_id' => $user->id]);
 
-        $this->actingAs($user)->deleteJson("/api/tasks/{$task->id}");
+        $this->actingAs($user)->deleteJson("/api/v1/tasks/{$task->id}");
 
-        $response = $this->actingAs($user)->getJson('/api/tasks');
+        $response = $this->actingAs($user)->getJson('/api/v1/tasks');
 
         $response->assertOk()
             ->assertJsonCount(0, 'data');
@@ -29,7 +29,7 @@ class TaskSoftDeleteTest extends TestCase
         $user = User::factory()->create();
         $task = Task::factory()->create(['user_id' => $user->id]);
 
-        $this->actingAs($user)->deleteJson("/api/tasks/{$task->id}");
+        $this->actingAs($user)->deleteJson("/api/v1/tasks/{$task->id}");
 
         $this->assertSoftDeleted('tasks', ['id' => $task->id]);
     }
@@ -39,9 +39,9 @@ class TaskSoftDeleteTest extends TestCase
         $user = User::factory()->create();
         $task = Task::factory()->create(['user_id' => $user->id]);
 
-        $this->actingAs($user)->deleteJson("/api/tasks/{$task->id}");
+        $this->actingAs($user)->deleteJson("/api/v1/tasks/{$task->id}");
 
-        $response = $this->actingAs($user)->getJson("/api/tasks/{$task->id}");
+        $response = $this->actingAs($user)->getJson("/api/v1/tasks/{$task->id}");
 
         $response->assertStatus(404);
     }

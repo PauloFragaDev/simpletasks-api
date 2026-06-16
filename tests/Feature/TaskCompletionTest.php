@@ -18,7 +18,7 @@ class TaskCompletionTest extends TestCase
 
         $this->assertNull($task->completed_at);
 
-        $this->actingAs($user)->patchJson("/api/tasks/{$task->id}", [
+        $this->actingAs($user)->patchJson("/api/v1/tasks/{$task->id}", [
             'status' => 'done',
         ]);
 
@@ -33,7 +33,7 @@ class TaskCompletionTest extends TestCase
             'completed_at' => now(),
         ]);
 
-        $this->actingAs($user)->patchJson("/api/tasks/{$task->id}", [
+        $this->actingAs($user)->patchJson("/api/v1/tasks/{$task->id}", [
             'status' => 'pending',
         ]);
 
@@ -48,7 +48,7 @@ class TaskCompletionTest extends TestCase
             'completed_at' => now(),
         ]);
 
-        $response = $this->actingAs($user)->getJson("/api/tasks/{$task->id}");
+        $response = $this->actingAs($user)->getJson("/api/v1/tasks/{$task->id}");
 
         $response->assertOk()
             ->assertJsonStructure(['data' => ['completed_at']]);
@@ -59,7 +59,7 @@ class TaskCompletionTest extends TestCase
         $user = User::factory()->create();
         $task = Task::factory()->pending()->create(['user_id' => $user->id]);
 
-        $response = $this->actingAs($user)->getJson("/api/tasks/{$task->id}");
+        $response = $this->actingAs($user)->getJson("/api/v1/tasks/{$task->id}");
 
         $response->assertOk()
             ->assertJsonPath('data.completed_at', null);

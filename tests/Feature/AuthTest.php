@@ -14,7 +14,7 @@ class AuthTest extends TestCase
 
     public function test_user_can_register_with_valid_data(): void
     {
-        $response = $this->postJson('/api/register', [
+        $response = $this->postJson('/api/v1/register', [
             'name' => 'John Doe',
             'email' => 'john@example.com',
             'password' => 'password123',
@@ -35,7 +35,7 @@ class AuthTest extends TestCase
     {
         User::factory()->create(['email' => 'john@example.com']);
 
-        $response = $this->postJson('/api/register', [
+        $response = $this->postJson('/api/v1/register', [
             'name' => 'John Doe',
             'email' => 'john@example.com',
             'password' => 'password123',
@@ -48,7 +48,7 @@ class AuthTest extends TestCase
 
     public function test_register_fails_with_invalid_email(): void
     {
-        $response = $this->postJson('/api/register', [
+        $response = $this->postJson('/api/v1/register', [
             'name' => 'John Doe',
             'email' => 'not-an-email',
             'password' => 'password123',
@@ -61,7 +61,7 @@ class AuthTest extends TestCase
 
     public function test_register_fails_without_password_confirmation(): void
     {
-        $response = $this->postJson('/api/register', [
+        $response = $this->postJson('/api/v1/register', [
             'name' => 'John Doe',
             'email' => 'john@example.com',
             'password' => 'password123',
@@ -73,7 +73,7 @@ class AuthTest extends TestCase
 
     public function test_register_fails_with_short_password(): void
     {
-        $response = $this->postJson('/api/register', [
+        $response = $this->postJson('/api/v1/register', [
             'name' => 'John Doe',
             'email' => 'john@example.com',
             'password' => 'short',
@@ -90,7 +90,7 @@ class AuthTest extends TestCase
     {
         $user = User::factory()->create(['password' => bcrypt('password123')]);
 
-        $response = $this->postJson('/api/login', [
+        $response = $this->postJson('/api/v1/login', [
             'email' => $user->email,
             'password' => 'password123',
             // device_name intentionally missing
@@ -104,7 +104,7 @@ class AuthTest extends TestCase
     {
         $user = User::factory()->create(['password' => bcrypt('password123')]);
 
-        $response = $this->postJson('/api/login', [
+        $response = $this->postJson('/api/v1/login', [
             'email' => $user->email,
             'password' => 'password123',
             'device_name' => 'My Device',
@@ -122,7 +122,7 @@ class AuthTest extends TestCase
     {
         $user = User::factory()->create(['password' => bcrypt('correct')]);
 
-        $response = $this->postJson('/api/login', [
+        $response = $this->postJson('/api/v1/login', [
             'email' => $user->email,
             'password' => 'wrong',
             'device_name' => 'My Device',
@@ -134,7 +134,7 @@ class AuthTest extends TestCase
 
     public function test_login_fails_with_nonexistent_email(): void
     {
-        $response = $this->postJson('/api/login', [
+        $response = $this->postJson('/api/v1/login', [
             'email' => 'nobody@example.com',
             'password' => 'password123',
             'device_name' => 'My Device',
@@ -152,7 +152,7 @@ class AuthTest extends TestCase
         // actingAs() uses a TransientToken that has no delete(); a real token is needed
         $token = $user->createToken('test')->plainTextToken;
 
-        $response = $this->withToken($token)->postJson('/api/logout');
+        $response = $this->withToken($token)->postJson('/api/v1/logout');
 
         $response->assertOk()
             ->assertJson(['message' => 'Logged out successfully']);
@@ -160,7 +160,7 @@ class AuthTest extends TestCase
 
     public function test_unauthenticated_user_cannot_logout(): void
     {
-        $response = $this->postJson('/api/logout');
+        $response = $this->postJson('/api/v1/logout');
 
         $response->assertStatus(401);
     }
@@ -171,7 +171,7 @@ class AuthTest extends TestCase
     {
         $user = User::factory()->create();
 
-        $response = $this->actingAs($user)->getJson('/api/me');
+        $response = $this->actingAs($user)->getJson('/api/v1/me');
 
         $response->assertOk()
             ->assertJson([
@@ -185,7 +185,7 @@ class AuthTest extends TestCase
 
     public function test_unauthenticated_user_cannot_get_profile(): void
     {
-        $response = $this->getJson('/api/me');
+        $response = $this->getJson('/api/v1/me');
 
         $response->assertStatus(401);
     }

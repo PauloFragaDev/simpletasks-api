@@ -21,7 +21,7 @@ class TaskTest extends TestCase
         Task::factory()->count(3)->create(['user_id' => $user->id]);
         Task::factory()->count(2)->create(['user_id' => $other->id]);
 
-        $response = $this->actingAs($user)->getJson('/api/tasks');
+        $response = $this->actingAs($user)->getJson('/api/v1/tasks');
 
         $response->assertOk()
             ->assertJsonCount(3, 'data');
@@ -33,7 +33,7 @@ class TaskTest extends TestCase
         Task::factory()->count(2)->pending()->create(['user_id' => $user->id]);
         Task::factory()->count(3)->done()->create(['user_id' => $user->id]);
 
-        $response = $this->actingAs($user)->getJson('/api/tasks?status=pending');
+        $response = $this->actingAs($user)->getJson('/api/v1/tasks?status=pending');
 
         $response->assertOk()
             ->assertJsonCount(2, 'data');
@@ -45,7 +45,7 @@ class TaskTest extends TestCase
         Task::factory()->count(2)->highPriority()->create(['user_id' => $user->id]);
         Task::factory()->count(3)->create(['user_id' => $user->id, 'priority' => 'low']);
 
-        $response = $this->actingAs($user)->getJson('/api/tasks?priority=high');
+        $response = $this->actingAs($user)->getJson('/api/v1/tasks?priority=high');
 
         $response->assertOk()
             ->assertJsonCount(2, 'data');
@@ -56,7 +56,7 @@ class TaskTest extends TestCase
         $user = User::factory()->create();
         Task::factory()->count(20)->create(['user_id' => $user->id]);
 
-        $response = $this->actingAs($user)->getJson('/api/tasks?per_page=5');
+        $response = $this->actingAs($user)->getJson('/api/v1/tasks?per_page=5');
 
         $response->assertOk()
             ->assertJsonCount(5, 'data')
@@ -67,7 +67,7 @@ class TaskTest extends TestCase
     {
         $user = User::factory()->create();
 
-        $response = $this->actingAs($user)->getJson('/api/tasks?per_page=10000');
+        $response = $this->actingAs($user)->getJson('/api/v1/tasks?per_page=10000');
 
         $response->assertStatus(422)
             ->assertJsonValidationErrors('per_page');
@@ -78,7 +78,7 @@ class TaskTest extends TestCase
         $user = User::factory()->create();
         Task::factory()->create(['user_id' => $user->id]);
 
-        $response = $this->actingAs($user)->getJson('/api/tasks?sort_by=password');
+        $response = $this->actingAs($user)->getJson('/api/v1/tasks?sort_by=password');
 
         $response->assertStatus(422)
             ->assertJsonValidationErrors('sort_by');
@@ -89,7 +89,7 @@ class TaskTest extends TestCase
         $user = User::factory()->create();
         Task::factory()->create(['user_id' => $user->id]);
 
-        $response = $this->actingAs($user)->getJson('/api/tasks?sort_order=DROP TABLE');
+        $response = $this->actingAs($user)->getJson('/api/v1/tasks?sort_order=DROP TABLE');
 
         $response->assertStatus(422)
             ->assertJsonValidationErrors('sort_order');
@@ -101,7 +101,7 @@ class TaskTest extends TestCase
         Task::factory()->create(['user_id' => $user->id, 'title' => 'Zebra task']);
         Task::factory()->create(['user_id' => $user->id, 'title' => 'Alpha task']);
 
-        $response = $this->actingAs($user)->getJson('/api/tasks?sort_by=title&sort_order=asc');
+        $response = $this->actingAs($user)->getJson('/api/v1/tasks?sort_by=title&sort_order=asc');
 
         $response->assertOk();
         $this->assertEquals('Alpha task', $response->json('data.0.title'));
@@ -109,7 +109,7 @@ class TaskTest extends TestCase
 
     public function test_unauthenticated_user_cannot_list_tasks(): void
     {
-        $response = $this->getJson('/api/tasks');
+        $response = $this->getJson('/api/v1/tasks');
 
         $response->assertStatus(401);
     }
@@ -120,7 +120,7 @@ class TaskTest extends TestCase
     {
         $user = User::factory()->create();
 
-        $response = $this->actingAs($user)->postJson('/api/tasks', [
+        $response = $this->actingAs($user)->postJson('/api/v1/tasks', [
             'title' => 'Buy groceries',
             'description' => 'Milk, bread, eggs',
             'status' => 'pending',
@@ -143,7 +143,7 @@ class TaskTest extends TestCase
     {
         $user = User::factory()->create();
 
-        $response = $this->actingAs($user)->postJson('/api/tasks', [
+        $response = $this->actingAs($user)->postJson('/api/v1/tasks', [
             'description' => 'Some description',
         ]);
 
@@ -155,7 +155,7 @@ class TaskTest extends TestCase
     {
         $user = User::factory()->create();
 
-        $response = $this->actingAs($user)->postJson('/api/tasks', [
+        $response = $this->actingAs($user)->postJson('/api/v1/tasks', [
             'title' => 'Test task',
             'status' => 'invalid_status',
         ]);
@@ -168,7 +168,7 @@ class TaskTest extends TestCase
     {
         $user = User::factory()->create();
 
-        $response = $this->actingAs($user)->postJson('/api/tasks', [
+        $response = $this->actingAs($user)->postJson('/api/v1/tasks', [
             'title' => 'Test task',
             'due_date' => now()->subDays(1)->format('Y-m-d'),
         ]);
@@ -184,7 +184,7 @@ class TaskTest extends TestCase
         $user = User::factory()->create();
         $task = Task::factory()->create(['user_id' => $user->id]);
 
-        $response = $this->actingAs($user)->getJson("/api/tasks/{$task->id}");
+        $response = $this->actingAs($user)->getJson("/api/v1/tasks/{$task->id}");
 
         $response->assertOk()
             ->assertJsonPath('data.id', $task->id);
@@ -196,7 +196,7 @@ class TaskTest extends TestCase
         $other = User::factory()->create();
         $task = Task::factory()->create(['user_id' => $other->id]);
 
-        $response = $this->actingAs($user)->getJson("/api/tasks/{$task->id}");
+        $response = $this->actingAs($user)->getJson("/api/v1/tasks/{$task->id}");
 
         $response->assertStatus(403);
     }
@@ -208,7 +208,7 @@ class TaskTest extends TestCase
         $user = User::factory()->create();
         $task = Task::factory()->pending()->create(['user_id' => $user->id]);
 
-        $response = $this->actingAs($user)->patchJson("/api/tasks/{$task->id}", [
+        $response = $this->actingAs($user)->patchJson("/api/v1/tasks/{$task->id}", [
             'status' => 'done',
         ]);
 
@@ -224,7 +224,7 @@ class TaskTest extends TestCase
         $other = User::factory()->create();
         $task = Task::factory()->create(['user_id' => $other->id]);
 
-        $response = $this->actingAs($user)->patchJson("/api/tasks/{$task->id}", [
+        $response = $this->actingAs($user)->patchJson("/api/v1/tasks/{$task->id}", [
             'title' => 'Hacked',
         ]);
 
@@ -236,7 +236,7 @@ class TaskTest extends TestCase
         $user = User::factory()->create();
         $task = Task::factory()->withPastDueDate()->create(['user_id' => $user->id]);
 
-        $response = $this->actingAs($user)->patchJson("/api/tasks/{$task->id}", [
+        $response = $this->actingAs($user)->patchJson("/api/v1/tasks/{$task->id}", [
             'title' => 'Updated title',
             'due_date' => $task->due_date->format('Y-m-d'),
         ]);
@@ -251,7 +251,7 @@ class TaskTest extends TestCase
         $user = User::factory()->create();
         $task = Task::factory()->create(['user_id' => $user->id]);
 
-        $response = $this->actingAs($user)->deleteJson("/api/tasks/{$task->id}");
+        $response = $this->actingAs($user)->deleteJson("/api/v1/tasks/{$task->id}");
 
         $response->assertOk()
             ->assertJson(['message' => 'Task deleted successfully']);
@@ -265,7 +265,7 @@ class TaskTest extends TestCase
         $other = User::factory()->create();
         $task = Task::factory()->create(['user_id' => $other->id]);
 
-        $response = $this->actingAs($user)->deleteJson("/api/tasks/{$task->id}");
+        $response = $this->actingAs($user)->deleteJson("/api/v1/tasks/{$task->id}");
 
         $response->assertStatus(403);
         $this->assertDatabaseHas('tasks', ['id' => $task->id]);

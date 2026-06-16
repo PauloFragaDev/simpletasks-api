@@ -17,7 +17,7 @@ class TokenManagementTest extends TestCase
         $user  = User::factory()->create();
         $token = $user->createToken('My Phone')->plainTextToken;
 
-        $response = $this->withToken($token)->getJson('/api/auth/tokens');
+        $response = $this->withToken($token)->getJson('/api/v1/auth/tokens');
 
         $response->assertOk()
             ->assertJsonStructure([
@@ -37,7 +37,7 @@ class TokenManagementTest extends TestCase
         $userB->createToken('Other Token');
         $tokenA = $userA->createToken('My Token')->plainTextToken;
 
-        $response = $this->withToken($tokenA)->getJson('/api/auth/tokens');
+        $response = $this->withToken($tokenA)->getJson('/api/v1/auth/tokens');
 
         $response->assertOk();
         $this->assertCount(1, $response->json('data'));
@@ -45,7 +45,7 @@ class TokenManagementTest extends TestCase
 
     public function test_unauthenticated_user_cannot_list_tokens(): void
     {
-        $this->getJson('/api/auth/tokens')->assertStatus(401);
+        $this->getJson('/api/v1/auth/tokens')->assertStatus(401);
     }
 
     // ── Revoke token ──────────────────────────────────────────────────────
@@ -57,7 +57,7 @@ class TokenManagementTest extends TestCase
         $tokenB  = $user->createToken('Laptop');
 
         $response = $this->withToken($tokenA)
-            ->deleteJson("/api/auth/tokens/{$tokenB->accessToken->id}");
+            ->deleteJson("/api/v1/auth/tokens/{$tokenB->accessToken->id}");
 
         $response->assertOk()
             ->assertJsonFragment(['message' => 'Token revoked successfully.']);
@@ -73,7 +73,7 @@ class TokenManagementTest extends TestCase
         $token = $user->createToken('My Device');
 
         $response = $this->withToken($token->plainTextToken)
-            ->deleteJson("/api/auth/tokens/{$token->accessToken->id}");
+            ->deleteJson("/api/v1/auth/tokens/{$token->accessToken->id}");
 
         $response->assertOk()
             ->assertJsonFragment(['message' => 'Token revoked successfully.']);
@@ -88,14 +88,14 @@ class TokenManagementTest extends TestCase
         $tokenB     = $userB->createToken('Other Device');
 
         $response = $this->withToken($tokenA)
-            ->deleteJson("/api/auth/tokens/{$tokenB->accessToken->id}");
+            ->deleteJson("/api/v1/auth/tokens/{$tokenB->accessToken->id}");
 
         $response->assertStatus(403);
     }
 
     public function test_unauthenticated_user_cannot_revoke_tokens(): void
     {
-        $this->deleteJson('/api/auth/tokens/1')->assertStatus(401);
+        $this->deleteJson('/api/v1/auth/tokens/1')->assertStatus(401);
     }
 
     public function test_revoking_nonexistent_token_returns_404(): void
@@ -103,7 +103,7 @@ class TokenManagementTest extends TestCase
         $user  = User::factory()->create();
         $token = $user->createToken('My Device')->plainTextToken;
 
-        $response = $this->withToken($token)->deleteJson('/api/auth/tokens/9999');
+        $response = $this->withToken($token)->deleteJson('/api/v1/auth/tokens/9999');
 
         $response->assertStatus(404);
     }
