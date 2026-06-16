@@ -25,9 +25,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        Event::listen(TaskCreated::class,   LogTaskActivity::class);
-        Event::listen(TaskUpdated::class,   LogTaskActivity::class);
-        Event::listen(TaskDeleted::class,   LogTaskActivity::class);
+        Event::listen(TaskCreated::class, LogTaskActivity::class);
+        Event::listen(TaskUpdated::class, LogTaskActivity::class);
+        Event::listen(TaskDeleted::class, LogTaskActivity::class);
         Event::listen(TaskCompleted::class, LogTaskActivity::class);
     }
 }
