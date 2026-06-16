@@ -2,32 +2,26 @@
 
 namespace App\Http\Requests;
 
+use App\Enums\TaskPriority;
+use App\Enums\TaskStatus;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class UpdateTaskRequest extends FormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     */
     public function authorize(): bool
     {
-        // Authorization check: user can only update their own tasks
-        return $this->route('task')->user_id === $this->user()->id;
+        return $this->user()->can('update', $this->route('task'));
     }
 
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
-     */
     public function rules(): array
     {
         return [
-            'title' => ['sometimes', 'required', 'string', 'max:255'],
+            'title'       => ['sometimes', 'required', 'string', 'max:255'],
             'description' => ['nullable', 'string'],
-            'status' => ['sometimes', 'in:pending,in_progress,done'],
-            'priority' => ['sometimes', 'in:low,medium,high'],
-            'due_date' => ['nullable', 'date', 'after_or_equal:today'],
+            'status'      => ['sometimes', Rule::enum(TaskStatus::class)],
+            'priority'    => ['sometimes', Rule::enum(TaskPriority::class)],
+            'due_date'    => ['nullable', 'date'],
         ];
     }
 }

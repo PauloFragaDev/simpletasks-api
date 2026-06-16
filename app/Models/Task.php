@@ -2,19 +2,18 @@
 
 namespace App\Models;
 
+use App\Enums\TaskPriority;
+use App\Enums\TaskStatus;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
 
 class Task extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<string>
-     */
     protected $fillable = [
         'user_id',
         'title',
@@ -22,23 +21,32 @@ class Task extends Model
         'status',
         'priority',
         'due_date',
+        'completed_at',
     ];
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
     protected function casts(): array
     {
         return [
-            'due_date' => 'date',
+            'status'       => TaskStatus::class,
+            'priority'     => TaskPriority::class,
+            'due_date'     => 'date',
+            'completed_at' => 'datetime',
         ];
     }
 
-    /**
-     * Get the user that owns the task.
-     */
+    protected static function booted(): void
+    {
+        static::saving(function (Task $task) {
+            if ($task->isDirty('status')) {
+                if ($task->status === TaskStatus::Done) {
+                    $task->completed_at ??= Carbon::now();
+                } else {
+                    $task->completed_at = null;
+                }
+            }
+        });
+    }
+
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
