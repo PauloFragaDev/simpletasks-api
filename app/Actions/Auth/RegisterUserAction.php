@@ -15,6 +15,10 @@ class RegisterUserAction
             'password' => Hash::make($data['password']),
         ]);
 
+        if ($user instanceof \Illuminate\Contracts\Auth\MustVerifyEmail && ! $user->hasVerifiedEmail()) {
+            $user->sendEmailVerificationNotification();
+        }
+
         UserRegistered::dispatch($user);
 
         return $user;
