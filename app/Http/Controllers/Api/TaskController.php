@@ -1,7 +1,9 @@
 <?php
-
 namespace App\Http\Controllers\Api;
 
+use App\Actions\Task\CreateTaskAction;
+use App\Actions\Task\DeleteTaskAction;
+use App\Actions\Task\UpdateTaskAction;
 use App\Enums\TaskPriority;
 use App\Enums\TaskStatus;
 use App\Http\Controllers\Controller;
@@ -16,6 +18,12 @@ use Illuminate\Validation\Rule;
 
 class TaskController extends Controller
 {
+    public function __construct(
+        private CreateTaskAction $createTask,
+        private UpdateTaskAction $updateTask,
+        private DeleteTaskAction $deleteTask,
+    ) {}
+
     public function index(Request $request): AnonymousResourceCollection
     {
         $request->validate([
@@ -36,18 +44,19 @@ class TaskController extends Controller
             $query->where('priority', $request->priority);
         }
 
-        $sortBy    = $request->get('sort_by', 'created_at');
-        $sortOrder = $request->get('sort_order', 'desc');
-        $query->orderBy($sortBy, $sortOrder);
+        $query->orderBy(
+            $request->get('sort_by', 'created_at'),
+            $request->get('sort_order', 'desc')
+        );
 
-        $tasks = $query->paginate($request->integer('per_page', 15));
-
-        return TaskResource::collection($tasks);
+        return TaskResource::collection(
+            $query->paginate($request->integer('per_page', 15))
+        );
     }
 
     public function store(StoreTaskRequest $request): JsonResponse
     {
-        $task = $request->user()->tasks()->create($request->validated());
+        $task = $this->createTask->handle($request->user(), $request->validated());
 
         return response()->json([
             'message' => 'Task created successfully',
@@ -58,13 +67,12 @@ class TaskController extends Controller
     public function show(Task $task): TaskResource|JsonResponse
     {
         $this->authorize('view', $task);
-
         return new TaskResource($task);
     }
 
     public function update(UpdateTaskRequest $request, Task $task): JsonResponse
     {
-        $task->update($request->validated());
+        $task = $this->updateTask->handle($task, $request->validated());
 
         return response()->json([
             'message' => 'Task updated successfully',
@@ -75,11 +83,8 @@ class TaskController extends Controller
     public function destroy(Task $task): JsonResponse
     {
         $this->authorize('delete', $task);
+        $this->deleteTask->handle($task);
 
-        $task->delete();
-
-        return response()->json([
-            'message' => 'Task deleted successfully',
-        ]);
+        return response()->json(['message' => 'Task deleted successfully']);
     }
 }
