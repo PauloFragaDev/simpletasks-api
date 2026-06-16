@@ -4,8 +4,6 @@ namespace App\Http\Controllers\Api;
 use App\Actions\Task\CreateTaskAction;
 use App\Actions\Task\DeleteTaskAction;
 use App\Actions\Task\UpdateTaskAction;
-use App\Enums\TaskPriority;
-use App\Enums\TaskStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreTaskRequest;
 use App\Http\Requests\UpdateTaskRequest;
@@ -15,7 +13,8 @@ use App\Traits\ApiResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
-use Illuminate\Validation\Rule;
+use Spatie\QueryBuilder\AllowedFilter;
+use Spatie\QueryBuilder\QueryBuilder;
 
 class TaskController extends Controller
 {
@@ -29,31 +28,19 @@ class TaskController extends Controller
     public function index(Request $request): AnonymousResourceCollection
     {
         $request->validate([
-            'status'     => ['nullable', Rule::enum(TaskStatus::class)],
-            'priority'   => ['nullable', Rule::enum(TaskPriority::class)],
-            'sort_by'    => ['nullable', Rule::in(['created_at', 'updated_at', 'title', 'due_date', 'priority', 'status'])],
-            'sort_order' => ['nullable', Rule::in(['asc', 'desc'])],
-            'per_page'   => ['nullable', 'integer', 'min:1', 'max:100'],
+            'per_page' => ['nullable', 'integer', 'min:1', 'max:100'],
         ]);
 
-        $query = $request->user()->tasks();
+        $tasks = QueryBuilder::for($request->user()->tasks())
+            ->allowedFilters(
+                AllowedFilter::exact('status'),
+                AllowedFilter::exact('priority'),
+            )
+            ->allowedSorts('created_at', 'updated_at', 'title', 'due_date', 'priority', 'status')
+            ->defaultSort('-created_at')
+            ->paginate($request->integer('per_page', 15));
 
-        if ($request->has('status')) {
-            $query->where('status', $request->status);
-        }
-
-        if ($request->has('priority')) {
-            $query->where('priority', $request->priority);
-        }
-
-        $query->orderBy(
-            $request->get('sort_by', 'created_at'),
-            $request->get('sort_order', 'desc')
-        );
-
-        return TaskResource::collection(
-            $query->paginate($request->integer('per_page', 15))
-        );
+        return TaskResource::collection($tasks);
     }
 
     public function store(StoreTaskRequest $request): JsonResponse

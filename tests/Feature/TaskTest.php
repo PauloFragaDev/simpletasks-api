@@ -33,7 +33,7 @@ class TaskTest extends TestCase
         Task::factory()->count(2)->pending()->create(['user_id' => $user->id]);
         Task::factory()->count(3)->done()->create(['user_id' => $user->id]);
 
-        $response = $this->actingAs($user)->getJson('/api/v1/tasks?status=pending');
+        $response = $this->actingAs($user)->getJson('/api/v1/tasks?filter[status]=pending');
 
         $response->assertOk()
             ->assertJsonCount(2, 'data');
@@ -45,7 +45,7 @@ class TaskTest extends TestCase
         Task::factory()->count(2)->highPriority()->create(['user_id' => $user->id]);
         Task::factory()->count(3)->create(['user_id' => $user->id, 'priority' => 'low']);
 
-        $response = $this->actingAs($user)->getJson('/api/v1/tasks?priority=high');
+        $response = $this->actingAs($user)->getJson('/api/v1/tasks?filter[priority]=high');
 
         $response->assertOk()
             ->assertJsonCount(2, 'data');
@@ -78,21 +78,21 @@ class TaskTest extends TestCase
         $user = User::factory()->create();
         Task::factory()->create(['user_id' => $user->id]);
 
-        $response = $this->actingAs($user)->getJson('/api/v1/tasks?sort_by=password');
+        $response = $this->actingAs($user)->getJson('/api/v1/tasks?sort=password');
 
-        $response->assertStatus(422)
-            ->assertJsonValidationErrors('sort_by');
+        $response->assertStatus(422);
     }
 
-    public function test_sort_order_only_accepts_asc_or_desc(): void
+    public function test_tasks_can_be_sorted_in_descending_order(): void
     {
         $user = User::factory()->create();
-        Task::factory()->create(['user_id' => $user->id]);
+        Task::factory()->create(['user_id' => $user->id, 'title' => 'Zebra task']);
+        Task::factory()->create(['user_id' => $user->id, 'title' => 'Alpha task']);
 
-        $response = $this->actingAs($user)->getJson('/api/v1/tasks?sort_order=DROP TABLE');
+        $response = $this->actingAs($user)->getJson('/api/v1/tasks?sort=-title');
 
-        $response->assertStatus(422)
-            ->assertJsonValidationErrors('sort_order');
+        $response->assertOk();
+        $this->assertEquals('Zebra task', $response->json('data.0.title'));
     }
 
     public function test_tasks_can_be_sorted_by_whitelisted_column(): void
@@ -101,7 +101,7 @@ class TaskTest extends TestCase
         Task::factory()->create(['user_id' => $user->id, 'title' => 'Zebra task']);
         Task::factory()->create(['user_id' => $user->id, 'title' => 'Alpha task']);
 
-        $response = $this->actingAs($user)->getJson('/api/v1/tasks?sort_by=title&sort_order=asc');
+        $response = $this->actingAs($user)->getJson('/api/v1/tasks?sort=title');
 
         $response->assertOk();
         $this->assertEquals('Alpha task', $response->json('data.0.title'));
