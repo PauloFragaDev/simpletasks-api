@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\Auth\EmailVerificationController;
 use App\Http\Controllers\Api\Auth\ForgotPasswordController;
 use App\Http\Controllers\Api\Auth\ResetPasswordController;
+use App\Http\Controllers\Api\Auth\TokenController;
 use App\Http\Controllers\Api\TaskController;
 use Illuminate\Support\Facades\Route;
 
@@ -20,6 +21,10 @@ Route::middleware('auth:sanctum')->group(function () {
     // Auth routes
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/me', [AuthController::class, 'me']);
+
+    // Token management
+    Route::get('/auth/tokens', [TokenController::class, 'index']);
+    Route::delete('/auth/tokens/{tokenId}', [TokenController::class, 'destroy']);
 
     // Email verification
     Route::get('/auth/verify-email/{id}/{hash}', [EmailVerificationController::class, 'verify'])
