@@ -7,11 +7,13 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Http\Requests\Auth\RegisterRequest;
 use App\Http\Resources\UserResource;
+use App\Traits\ApiResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class AuthController extends Controller
 {
+    use ApiResponse;
     public function __construct(
         private RegisterUserAction $registerUser,
         private LoginUserAction    $loginUser,
@@ -22,11 +24,11 @@ class AuthController extends Controller
         $user  = $this->registerUser->handle($request->validated());
         $token = $user->createToken($request->header('User-Agent', 'unknown'))->plainTextToken;
 
-        return response()->json([
-            'message' => 'User registered successfully',
-            'user'    => new UserResource($user),
-            'token'   => $token,
-        ], 201);
+        return $this->success(
+            data: ['user' => new UserResource($user), 'token' => $token],
+            message: 'User registered successfully.',
+            status: 201
+        );
     }
 
     public function login(LoginRequest $request): JsonResponse
@@ -37,21 +39,20 @@ class AuthController extends Controller
             $request->device_name
         );
 
-        return response()->json([
-            'message' => 'Login successful',
-            'user'    => new UserResource($result->user),
-            'token'   => $result->token,
-        ]);
+        return $this->success(
+            data: ['user' => new UserResource($result->user), 'token' => $result->token],
+            message: 'Login successful.',
+        );
     }
 
     public function logout(Request $request): JsonResponse
     {
         $request->user()->currentAccessToken()->delete();
-        return response()->json(['message' => 'Logged out successfully']);
+        return $this->success(message: 'Logged out successfully.');
     }
 
     public function me(Request $request): JsonResponse
     {
-        return response()->json(['user' => new UserResource($request->user())]);
+        return $this->success(data: new UserResource($request->user()));
     }
 }

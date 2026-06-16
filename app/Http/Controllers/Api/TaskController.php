@@ -11,6 +11,7 @@ use App\Http\Requests\StoreTaskRequest;
 use App\Http\Requests\UpdateTaskRequest;
 use App\Http\Resources\TaskResource;
 use App\Models\Task;
+use App\Traits\ApiResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -18,6 +19,7 @@ use Illuminate\Validation\Rule;
 
 class TaskController extends Controller
 {
+    use ApiResponse;
     public function __construct(
         private CreateTaskAction $createTask,
         private UpdateTaskAction $updateTask,
@@ -58,10 +60,7 @@ class TaskController extends Controller
     {
         $task = $this->createTask->handle($request->user(), $request->validated());
 
-        return response()->json([
-            'message' => 'Task created successfully',
-            'task'    => new TaskResource($task),
-        ], 201);
+        return $this->success(data: new TaskResource($task), message: 'Task created successfully.', status: 201);
     }
 
     public function show(Task $task): TaskResource|JsonResponse
@@ -74,10 +73,7 @@ class TaskController extends Controller
     {
         $task = $this->updateTask->handle($task, $request->validated());
 
-        return response()->json([
-            'message' => 'Task updated successfully',
-            'task'    => new TaskResource($task),
-        ]);
+        return $this->success(data: new TaskResource($task), message: 'Task updated successfully.');
     }
 
     public function destroy(Task $task): JsonResponse
@@ -85,6 +81,6 @@ class TaskController extends Controller
         $this->authorize('delete', $task);
         $this->deleteTask->handle($task);
 
-        return response()->json(['message' => 'Task deleted successfully']);
+        return $this->success(message: 'Task deleted successfully.');
     }
 }

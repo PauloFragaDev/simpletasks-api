@@ -24,8 +24,7 @@ class AuthTest extends TestCase
         $response->assertStatus(201)
             ->assertJsonStructure([
                 'message',
-                'user' => ['id', 'name', 'email', 'created_at'],
-                'token',
+                'data' => ['user' => ['id', 'name', 'email', 'created_at'], 'token'],
             ]);
 
         $this->assertDatabaseHas('users', ['email' => 'john@example.com']);
@@ -113,8 +112,7 @@ class AuthTest extends TestCase
         $response->assertOk()
             ->assertJsonStructure([
                 'message',
-                'user' => ['id', 'name', 'email'],
-                'token',
+                'data' => ['user' => ['id', 'name', 'email'], 'token'],
             ]);
     }
 
@@ -155,7 +153,7 @@ class AuthTest extends TestCase
         $response = $this->withToken($token)->postJson('/api/v1/logout');
 
         $response->assertOk()
-            ->assertJson(['message' => 'Logged out successfully']);
+            ->assertJson(['message' => 'Logged out successfully.']);
     }
 
     public function test_unauthenticated_user_cannot_logout(): void
@@ -175,7 +173,7 @@ class AuthTest extends TestCase
 
         $response->assertOk()
             ->assertJson([
-                'user' => [
+                'data' => [
                     'id' => $user->id,
                     'name' => $user->name,
                     'email' => $user->email,

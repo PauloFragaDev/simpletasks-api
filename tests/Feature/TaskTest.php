@@ -130,7 +130,7 @@ class TaskTest extends TestCase
         $response->assertStatus(201)
             ->assertJsonStructure([
                 'message',
-                'task' => ['id', 'title', 'description', 'status', 'priority', 'due_date', 'created_at'],
+                'data' => ['id', 'title', 'description', 'status', 'priority', 'due_date', 'created_at'],
             ]);
 
         $this->assertDatabaseHas('tasks', [
@@ -213,7 +213,7 @@ class TaskTest extends TestCase
         ]);
 
         $response->assertOk()
-            ->assertJsonPath('task.status', 'done');
+            ->assertJsonPath('data.status', 'done');
 
         $this->assertDatabaseHas('tasks', ['id' => $task->id, 'status' => 'done']);
     }
@@ -254,7 +254,7 @@ class TaskTest extends TestCase
         $response = $this->actingAs($user)->deleteJson("/api/v1/tasks/{$task->id}");
 
         $response->assertOk()
-            ->assertJson(['message' => 'Task deleted successfully']);
+            ->assertJson(['message' => 'Task deleted successfully.']);
 
         $this->assertSoftDeleted('tasks', ['id' => $task->id]);
     }
