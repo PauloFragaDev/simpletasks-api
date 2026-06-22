@@ -18,7 +18,7 @@ RUN composer install --no-dev --no-scripts --no-interaction --prefer-dist
 COPY . .
 
 # Regenerate autoloader with classmap optimizations
-RUN composer dump-autoload --optimize --no-dev
+RUN composer dump-autoload --optimize --no-dev --no-scripts
 
 # Install Node.js and build frontend assets
 RUN curl -fsSL https://deb.nodesource.com/setup_22.x | bash - \
