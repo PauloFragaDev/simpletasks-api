@@ -13,7 +13,8 @@ fi
 # Register service providers (writes bootstrap/cache/packages.php)
 php artisan package:discover --ansi
 
-# Cache config, routes and events (no view:cache — pure API, no Blade views to precompile)
+# Clear any stale cache then rebuild from current env vars
+php artisan config:clear
 php artisan config:cache
 php artisan route:cache
 php artisan event:cache
