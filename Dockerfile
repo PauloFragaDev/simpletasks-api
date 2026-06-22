@@ -4,7 +4,7 @@ FROM php:8.4-cli AS builder
 WORKDIR /var/www/html
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
-        git curl unzip libzip-dev \
+        git unzip libzip-dev \
     && docker-php-ext-install pdo_mysql bcmath zip \
     && rm -rf /var/lib/apt/lists/*
 
@@ -19,14 +19,6 @@ COPY . .
 
 # Regenerate autoloader with classmap optimizations
 RUN composer dump-autoload --optimize --no-dev --no-scripts
-
-# Install Node.js and build frontend assets
-RUN curl -fsSL https://deb.nodesource.com/setup_22.x | bash - \
-    && apt-get install -y --no-install-recommends nodejs \
-    && rm -rf /var/lib/apt/lists/* \
-    && npm ci \
-    && npm run build \
-    && rm -rf node_modules
 
 
 # ---- Stage: runtime ----
