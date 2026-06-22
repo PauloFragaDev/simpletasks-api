@@ -3,7 +3,8 @@ set -e
 
 ENV_FILE="/var/www/html/.env"
 
-# Auto-generate APP_KEY on first run and write it back to the mounted .env
+# Auto-generate APP_KEY on first run.
+# Only runs when .env is mounted (local Docker); Railway injects APP_KEY via env vars.
 if [ -f "$ENV_FILE" ] && ! grep -q "^APP_KEY=.\+" "$ENV_FILE"; then
     echo "Generating application key..."
     php artisan key:generate --force
@@ -18,5 +19,10 @@ php artisan optimize
 # Run pending migrations (idempotent — safe to run on every startup)
 echo "Running database migrations..."
 php artisan migrate --force
+
+# For Railway: use $PORT if injected, otherwise fall back to the port in $@
+if [ -n "$PORT" ]; then
+    set -- php artisan serve --host=0.0.0.0 --port="$PORT"
+fi
 
 exec "$@"
