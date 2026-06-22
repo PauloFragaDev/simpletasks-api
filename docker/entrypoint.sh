@@ -13,8 +13,10 @@ fi
 # Register service providers (writes bootstrap/cache/packages.php)
 php artisan package:discover --ansi
 
-# Cache config, routes, views and events for performance
-php artisan optimize
+# Cache config, routes and events (no view:cache — pure API, no Blade views to precompile)
+php artisan config:cache
+php artisan route:cache
+php artisan event:cache
 
 # Run pending migrations (idempotent — safe to run on every startup)
 echo "Running database migrations..."

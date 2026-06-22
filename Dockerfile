@@ -33,7 +33,12 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 COPY --from=builder /var/www/html /var/www/html
 
-RUN chmod -R 775 storage bootstrap/cache
+RUN mkdir -p storage/framework/views \
+           storage/framework/cache/data \
+           storage/framework/sessions \
+           storage/logs \
+           storage/app/public \
+    && chmod -R 775 storage bootstrap/cache
 
 COPY docker/entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
