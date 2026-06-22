@@ -84,6 +84,60 @@ php artisan queue:work
 
 ---
 
+## Docker
+
+Run the full stack without installing PHP or MySQL locally.
+
+**Prerequisites:** [Docker](https://docs.docker.com/get-docker/) with Compose v2.
+
+```bash
+# 1. Clone
+git clone https://github.com/PauloFragaDev/simpletasks-api.git
+cd simpletasks-api
+
+# 2. Copy the environment file (pre-configured for Docker)
+cp .env.example .env
+
+# 3. Start all services
+docker compose up -d
+```
+
+The API will be available at `http://localhost:8000/api/v1`.
+
+On first startup the `app` container automatically generates `APP_KEY`, runs all migrations, and caches the configuration. No manual setup needed.
+
+### Services
+
+| Service | Description | Exposed port |
+|---------|-------------|--------------|
+| `app` | Laravel API (`php artisan serve`) | `8000` |
+| `db` | MySQL 8.0 | `3306` |
+| `queue` | Database queue worker | — |
+
+### Common commands
+
+```bash
+# Follow logs from all services
+docker compose logs -f
+
+# Run the test suite
+docker compose exec app php artisan test
+
+# Seed demo data (test@example.com / password123)
+docker compose exec app php artisan db:seed
+
+# Open a shell inside the app container
+docker compose exec app sh
+
+# Stop services (keeps database volume)
+docker compose down
+
+# Stop and delete all data
+docker compose down -v
+```
+
+---
+
 ## API Reference
 
 All endpoints are prefixed with `/api/v1`. Protected endpoints require `Authorization: Bearer {token}`.
