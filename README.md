@@ -1,6 +1,7 @@
 # SimpleTasks API
 
 [![CI](https://github.com/PauloFragaDev/simpletasks-api/actions/workflows/ci.yml/badge.svg)](https://github.com/PauloFragaDev/simpletasks-api/actions/workflows/ci.yml)
+[![Live API](https://img.shields.io/badge/Live%20API-Railway-6B3FD4?logo=railway)](https://simpletasks-api-production.up.railway.app/api/v1)
 
 A production-ready REST API for personal task management built with Laravel 12. Designed as a portfolio and boilerplate reference showcasing modern Laravel patterns: Actions, Domain Events, queued Notifications, Policies, and API versioning.
 
