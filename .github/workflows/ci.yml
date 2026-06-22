@@ -8,7 +8,7 @@ on:
 
 jobs:
   tests:
-    name: Tests (PHP 8.2)
+    name: Tests (PHP 8.4)
     runs-on: ubuntu-latest
 
     steps:
@@ -19,8 +19,8 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.4'
-          extensions: pdo, pdo_sqlite, mbstring, openssl, bcmath, json
-          coverage: none
+          extensions: pdo, pdo_sqlite, mbstring, openssl, bcmath, json, pcov
+          coverage: pcov
 
       - name: Copy .env
         run: cp .env.example .env
@@ -38,5 +38,12 @@ jobs:
       - name: Generate application key
         run: php artisan key:generate
 
-      - name: Run tests
-        run: php artisan test
+      - name: Run tests with coverage
+        run: php artisan test --coverage-clover=coverage.xml
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          files: coverage.xml
+          fail_ci_if_error: false
+          token: ${{ secrets.CODECOV_TOKEN }}
